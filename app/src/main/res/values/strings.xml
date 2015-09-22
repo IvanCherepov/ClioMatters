@@ -4,4 +4,10 @@
     <string name="no_items">No matters to display!</string>
     <string name="error_title">Oops! Sorry</string>
     <string name="error_message">There was an error getting data.</string>
+    <string name="title_activity_matter_details">Matter Details</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_share">Share</string>
+    <string name="share_chooser_title">\"How would you like to share?\"</string>
+    <string name="network_unavailable_message">Network is not available!</string>
 </resources>
