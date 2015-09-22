@@ -1,20 +1,12 @@
 package com.ubc.ivan.cliomatters;
 
-import android.app.ListActivity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.text.Html;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -25,46 +17,31 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class MainListActivity extends ListActivity {
+/**
+ * Created by ivan on 21/09/15.
+ */
+public class NetworkHandler {
 
-/*    ###Credentials
-    Use the following API method and the following API token to complete this task.
-            Documentation:​
-            ​
-    http://api­docs.clio.com/v2/index.html#get­all­matters​
-    <br>
-    The following HTTP headers should be set for each request:
-            "Authorization" => "Bearer Xzd7LAtiZZ6HBBjx0DVRqalqN8yjvXgzY5qaD15a"
-            "Content­Type" => "application/json"
-            "Accept" => "application/json"*/
-
-    public static final String TAG = MainListActivity.class.getSimpleName();
-
-    public static final int NUBMER_OF_MATTERS = 100;
-
-    protected String[] mMatters;
-    protected String[] mMatterNumber;
+    public static final String TAG = NetworkHandler.class.getSimpleName();
     protected JSONObject mMattersData;
+    Context mContext;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_list);
+    public NetworkHandler(Context mContext) {
+        this.mContext = mContext;
+    }
 
+    public void getJSON(String url) {
         if (isNetworkAvailable()) {
             GetMattersTask getMattersTask = new GetMattersTask();
             getMattersTask.execute();
         } else {
-            Toast.makeText(this, "Network is not available!", Toast.LENGTH_LONG).show();
+            Toast.makeText(mContext, "Network is not available!", Toast.LENGTH_LONG).show();
         }
-        //  pass the context from Activity to the non Activity class
-        //NetworkHandler networkHandler = new NetworkHandler(this);
-        //networkHandler.getJSON(MattersApiConstants.CLIO_URL);
     }
 
     private boolean isNetworkAvailable() {
         ConnectivityManager manager = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
+                mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
 
         boolean isAvailabe = false;
@@ -73,51 +50,6 @@ public class MainListActivity extends ListActivity {
         }
 
         return isAvailabe;
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main_list, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-
-    private void updateList() throws JSONException {
-        if (mMattersData == null) {
-            // TODO: handle error
-        } else {
-            JSONArray jsonMatters = mMattersData.getJSONArray("matters");
-            mMatterNumber = new String[jsonMatters.length()];
-            for (int i = 0; i < jsonMatters.length(); i++) {
-                JSONObject matter = jsonMatters.getJSONObject(i);
-                String display_number = matter.getString("display_number");
-                display_number = Html.fromHtml(display_number).toString();
-                mMatterNumber[i] = display_number;
-            }
-
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                    android.R.layout.simple_list_item_1, mMatterNumber);
-
-            setListAdapter(adapter);
-            Log.d(TAG, mMattersData.toString(2));
-        }
     }
 
     private class GetMattersTask extends AsyncTask<Object, Void, JSONObject> {
@@ -186,12 +118,6 @@ public class MainListActivity extends ListActivity {
         @Override
         protected void onPostExecute(JSONObject result) {
             mMattersData = result;
-
-            try {
-                updateList();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
         }
     }
 }
