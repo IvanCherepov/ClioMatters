@@ -85,23 +85,6 @@ public class MainListActivity extends ListActivity {
         //networkHandler.getJSON(MattersApiConstants.CLIO_URL);
     }
 
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        JSONArray jsonMatters = null;
-        try {
-            jsonMatters = mMattersData.getJSONArray("matters");
-            JSONObject jsonMatter = jsonMatters.getJSONObject(position);
-            String matterID = jsonMatter.getString("id");
-
-            Intent intent = new Intent(this, MatterDetailsActivity.class);
-            intent.setType(matterID);
-            startActivity(intent);
-
-        } catch (JSONException e) {
-            logException(e);
-        }
-    }
 
     private void logException(Exception e) {
         Log.e(TAG, "Excepption caught! ", e);
@@ -220,7 +203,7 @@ public class MainListActivity extends ListActivity {
     private void getMattersFromDatabase() {
         MatterSQLHelper matterSQLHelper = new MatterSQLHelper(context);
 
-        SQLiteDatabase database = matterSQLHelper.getReadableDatabase();
+        final SQLiteDatabase database = matterSQLHelper.getReadableDatabase();
 
         Cursor cursor = database.rawQuery("SELECT * FROM " + MatterSQLHelper.TABLE_MATTERS, null);
 
@@ -246,15 +229,48 @@ public class MainListActivity extends ListActivity {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(String.valueOf(MatterDetailsActivity.class));
+                Intent intent = new Intent(getApplicationContext(), MatterDetailsActivity.class);
                 //intent.setData(Uri.parse("http:google.com"));
-                intent.setType(String.valueOf(position));
-                startActivity(intent);
+
+                Cursor cursor = database.rawQuery("SELECT * FROM " +
+                        MatterSQLHelper.TABLE_MATTERS +
+                        " WHERE _id = " + Integer.toString(position + 1), null);
+
+                if (cursor.moveToFirst()) {
+                    Matter matter = new Matter(cursor.getInt(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_MATTER_ID)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_DISPLAY_NUMBER)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_CLIENT_NAME)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_DESCRIPTION)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_OPEN_DATE)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_OPEN_STATUS)));
+
+                    intent.putExtra("Matter", matter);
+
+                    startActivity(intent);
+                }
             }
         });
 
 
     }
+
+/*    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+        JSONArray jsonMatters = null;
+        try {
+            jsonMatters = mMattersData.getJSONArray("matters");
+            JSONObject jsonMatter = jsonMatters.getJSONObject(position);
+            String matterID = jsonMatter.getString("id");
+
+            Intent intent = new Intent(this, MatterDetailsActivity.class);
+            intent.setType(matterID);
+            startActivity(intent);
+
+        } catch (JSONException e) {
+            logException(e);
+        }
+    }*/
 
     private void alertUserAboutError() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

@@ -9,7 +9,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
+
+import com.ubc.ivan.cliomatters.Model.Matter;
 
 public class MatterDetailsActivity extends AppCompatActivity implements ActionBar.TabListener {
 
@@ -70,10 +71,12 @@ public class MatterDetailsActivity extends AppCompatActivity implements ActionBa
                             .setTabListener(this));
         }
 
-        Intent intent = getIntent();
-        String mID = intent.getType();
+        Matter matter = getMatter();
+    }
 
-        Toast.makeText(MatterDetailsActivity.this, mID, Toast.LENGTH_SHORT).show();
+    public Matter getMatter() {
+        Intent intent = getIntent();
+        return (Matter) intent.getSerializableExtra("Matter");
     }
 
     private void shareMatter() {
