@@ -23,8 +23,7 @@
         <activity
             android:name=".MatterDetailsActivity"
             android:label="@string/title_activity_matter_details"
-            android:parentActivityName=".MainListActivity"
-            android:screenOrientation="portrait">
+            android:parentActivityName=".MainListActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.ubc.ivan.cliomatters.MainListActivity" />

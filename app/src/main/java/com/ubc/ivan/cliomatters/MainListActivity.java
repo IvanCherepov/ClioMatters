@@ -2,21 +2,28 @@ package com.ubc.ivan.cliomatters;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.ubc.ivan.cliomatters.Database.MatterSQLHelper;
+import com.ubc.ivan.cliomatters.Model.Matter;
+import com.ubc.ivan.cliomatters.View.MainListAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,7 +37,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class MainListActivity extends ListActivity {
 
@@ -50,10 +56,14 @@ public class MainListActivity extends ListActivity {
     public static final int NUBMER_OF_MATTERS = 100;
     private final String KEY_DISPLAY_NUMBER = "display_number";
     private final String KEY_DESCRIPTION = "description";
-    protected String[] mMatters;
+
+    protected Matter matter;
+    protected Matter[] mMatters;
     protected String[] mMatterNumber;
     protected JSONObject mMattersData;
     protected ProgressBar mProgressBar;
+    protected Context context = this;
+    private ListView mListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +71,7 @@ public class MainListActivity extends ListActivity {
         setContentView(R.layout.activity_main_list);
 
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+        mListView = (ListView) findViewById(android.R.id.list);
 
         if (isNetworkAvailable()) {
             mProgressBar.setVisibility(View.VISIBLE);
@@ -84,7 +95,6 @@ public class MainListActivity extends ListActivity {
             String matterID = jsonMatter.getString("id");
 
             Intent intent = new Intent(this, MatterDetailsActivity.class);
-            //intent.setData(Uri.parse("http:google.com"));
             intent.setType(matterID);
             startActivity(intent);
 
@@ -128,18 +138,26 @@ public class MainListActivity extends ListActivity {
     private void updateDisplayforError() throws JSONException {
         mProgressBar.setVisibility(View.INVISIBLE);
         if (mMattersData == null) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(getString(R.string.error_title));
-            builder.setMessage(getString(R.string.error_message));
-            builder.setPositiveButton(android.R.string.ok, null);
-            AlertDialog dialog = builder.create();
-            dialog.show();
-
-            TextView emptyTextView = (TextView) getListView().getEmptyView();
-            emptyTextView.setText(getString(R.string.no_items));
+            alertUserAboutError();
         } else {
             JSONArray jsonMatters = mMattersData.getJSONArray("matters");
-            ArrayList<HashMap<String, String>> matters =
+
+            for (int i = 0; i < jsonMatters.length(); i++) {
+                JSONObject jsonMatter = jsonMatters.getJSONObject(i);
+                JSONObject jsonClient = jsonMatter.getJSONObject("client");
+                matter = new Matter(jsonMatter.getInt("id"),
+                        jsonMatter.getString("display_number"),
+                        jsonClient.getString("name"),
+                        jsonMatter.getString("description"),
+                        jsonMatter.getString("open_date"),
+                        jsonMatter.getString("status"));
+
+                addMatterToDatabase(matter, i + 1);
+            }
+
+            getMattersFromDatabase();
+
+/*            ArrayList<HashMap<String, String>> matters =
                     new ArrayList<HashMap<String, String>>();
 
             mMatterNumber = new String[jsonMatters.length()];
@@ -159,16 +177,95 @@ public class MainListActivity extends ListActivity {
 
             }
 
-            //ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-            //        android.R.layout.simple_list_item_1, mMatterNumber);
-
             String[] keys = {KEY_DISPLAY_NUMBER, KEY_DESCRIPTION};
             int[] ids = {android.R.id.text1, android.R.id.text2};
             SimpleAdapter adapter = new SimpleAdapter(this, matters,
                     android.R.layout.simple_list_item_2, keys, ids);
-            setListAdapter(adapter);
-            Log.d(TAG, mMattersData.toString(2));
+
+            setListAdapter(adapter);*/
+
+            // ListAdapter listAdapter = new MainListAdapter(MainListActivity.this, R.layout.main_list_item, mMatters);
+            //setListAdapter(listAdapter);
         }
+    }
+
+    private void addMatterToDatabase(Matter matter, int counter) {
+        MatterSQLHelper matterSQLHelper = new MatterSQLHelper(context);
+
+        SQLiteDatabase database = matterSQLHelper.getWritableDatabase();
+
+        ContentValues conventValues = new ContentValues();
+        conventValues.put(MatterSQLHelper.COLUMN_ID, counter);
+        conventValues.put(MatterSQLHelper.COLUMN_MATTER_ID, matter.getId());
+        conventValues.put(MatterSQLHelper.COLUMN_DISPLAY_NUMBER, matter.getDisplayName());
+        conventValues.put(MatterSQLHelper.COLUMN_CLIENT_NAME, matter.getClientName());
+        conventValues.put(MatterSQLHelper.COLUMN_DESCRIPTION, matter.getDescription());
+        conventValues.put(MatterSQLHelper.COLUMN_OPEN_DATE, matter.getOpenDate());
+        conventValues.put(MatterSQLHelper.COLUMN_OPEN_STATUS, matter.getStatus());
+
+        database.insert(MatterSQLHelper.TABLE_MATTERS, null, conventValues);
+        database.close();
+    }
+
+    private int getIntFromColumnName(Cursor cursor, String columnName) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        return cursor.getInt(columnIndex);
+    }
+
+    private String getStringFromColumnName(Cursor cursor, String columnName) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        return cursor.getString(columnIndex);
+    }
+
+    private void getMattersFromDatabase() {
+        MatterSQLHelper matterSQLHelper = new MatterSQLHelper(context);
+
+        SQLiteDatabase database = matterSQLHelper.getReadableDatabase();
+
+        Cursor cursor = database.rawQuery("SELECT * FROM " + MatterSQLHelper.TABLE_MATTERS, null);
+
+        ArrayList<Matter> matters = new ArrayList<Matter>();
+
+        if (cursor.moveToFirst()) {
+            do {
+                Matter matter = new Matter(getIntFromColumnName(cursor, MatterSQLHelper.COLUMN_MATTER_ID),
+                        getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_DISPLAY_NUMBER),
+                        getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_CLIENT_NAME),
+                        getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_DESCRIPTION),
+                        getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_OPEN_DATE),
+                        getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_OPEN_STATUS));
+                matters.add(matter);
+
+            } while (cursor.moveToNext());
+        }
+
+        ListAdapter listAdapter = new MainListAdapter(MainListActivity.this,
+                R.layout.main_list_item, matters);
+        mListView.setAdapter(listAdapter);
+
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(String.valueOf(MatterDetailsActivity.class));
+                //intent.setData(Uri.parse("http:google.com"));
+                intent.setType(String.valueOf(position));
+                startActivity(intent);
+            }
+        });
+
+
+    }
+
+    private void alertUserAboutError() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.error_title));
+        builder.setMessage(getString(R.string.error_message));
+        builder.setPositiveButton(android.R.string.ok, null);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        TextView emptyTextView = (TextView) getListView().getEmptyView();
+        emptyTextView.setText(getString(R.string.no_items));
     }
 
     private class GetMattersTask extends AsyncTask<Object, Void, JSONObject> {
