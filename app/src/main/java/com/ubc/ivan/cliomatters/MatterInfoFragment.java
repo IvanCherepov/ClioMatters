@@ -28,16 +28,29 @@ public class MatterInfoFragment extends Fragment {
 
         String mID = matter.getDescription();
 
-        TextView description = (TextView) getView().findViewById(R.id.txtNumberAndDescr);
+        TextView number = (TextView) getView().findViewById(R.id.txtNumber);
+        TextView practiceArea = (TextView) getView().findViewById(R.id.txtPracticeArea);
         TextView clientName = (TextView) getView().findViewById(R.id.txtClientName);
         TextView date = (TextView) getView().findViewById(R.id.txtOpendate);
         TextView status = (TextView) getView().findViewById(R.id.txtStatus);
-        //TextView billing = (TextView) getView().findViewById(R.id.txtBilling);
+        TextView billing = (TextView) getView().findViewById(R.id.txtBilling);
 
-        description.setText(matter.getDisplayName() + "\n" + matter.getDescription());
+        number.setText(matter.getDisplayName() + "\n" + matter.getDescription());
         clientName.setText(matter.getClientName());
         date.setText(matter.getOpenDate());
         status.setText(matter.getStatus());
-        //billing.setText(matter.ge());
+
+        if (matter.getBillable()) {
+            billing.setText("is billable");
+        } else {
+            billing.setText("is not billable");
+        }
+
+        if (matter.getPracticeArea().equals("null")) {
+            practiceArea.setText("General Practice");
+        } else {
+            practiceArea.setText(matter.getPracticeArea());
+        }
+
     }
 }

@@ -9,11 +9,13 @@ public class Matter implements Serializable {
     int id;
 
     Client client;
-    String displayName, clientName, description, openDate, status;
+    String displayName, clientName, description, openDate, status, practiceArea;
+    Boolean billable;
 
     public Matter(int id, String displayName,
                   String clientName, String description,
-                  String openDate, String status) {
+                  String openDate, String status,
+                  Boolean billable, String practiceArea) {
         this.id = id;
         //this.client = client;
         this.displayName = displayName;
@@ -21,6 +23,8 @@ public class Matter implements Serializable {
         this.description = description;
         this.openDate = openDate;
         this.status = status;
+        this.billable = billable;
+        this.practiceArea = practiceArea;
     }
 
     public int getId() {
@@ -78,5 +82,21 @@ public class Matter implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getPracticeArea() {
+        return practiceArea;
+    }
+
+    public void setPracticeArea(String practiceArea) {
+        this.practiceArea = practiceArea;
+    }
+
+    public Boolean getBillable() {
+        return billable;
+    }
+
+    public void setBillable(Boolean billable) {
+        this.billable = billable;
     }
 }

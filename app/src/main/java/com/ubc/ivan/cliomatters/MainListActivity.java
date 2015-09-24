@@ -133,42 +133,14 @@ public class MainListActivity extends ListActivity {
                         jsonClient.getString("name"),
                         jsonMatter.getString("description"),
                         jsonMatter.getString("open_date"),
-                        jsonMatter.getString("status"));
+                        jsonMatter.getString("status"),
+                        jsonMatter.getBoolean("billable"),
+                        jsonMatter.getString("practice_area"));
 
                 addMatterToDatabase(matter, i + 1);
             }
 
             getMattersFromDatabase();
-
-/*            ArrayList<HashMap<String, String>> matters =
-                    new ArrayList<HashMap<String, String>>();
-
-            mMatterNumber = new String[jsonMatters.length()];
-            for (int i = 0; i < jsonMatters.length(); i++) {
-                JSONObject m = jsonMatters.getJSONObject(i);
-                String display_number = m.getString(KEY_DISPLAY_NUMBER);
-                display_number = Html.fromHtml(display_number).toString();
-                String description = m.getString(KEY_DESCRIPTION);
-                description = Html.fromHtml(description).toString();
-                mMatterNumber[i] = display_number;
-
-                HashMap<String, String> matter = new HashMap<String, String>();
-                matter.put(KEY_DISPLAY_NUMBER, display_number);
-                matter.put(KEY_DESCRIPTION, description);
-
-                matters.add(matter);
-
-            }
-
-            String[] keys = {KEY_DISPLAY_NUMBER, KEY_DESCRIPTION};
-            int[] ids = {android.R.id.text1, android.R.id.text2};
-            SimpleAdapter adapter = new SimpleAdapter(this, matters,
-                    android.R.layout.simple_list_item_2, keys, ids);
-
-            setListAdapter(adapter);*/
-
-            // ListAdapter listAdapter = new MainListAdapter(MainListActivity.this, R.layout.main_list_item, mMatters);
-            //setListAdapter(listAdapter);
         }
     }
 
@@ -185,6 +157,8 @@ public class MainListActivity extends ListActivity {
         conventValues.put(MatterSQLHelper.COLUMN_DESCRIPTION, matter.getDescription());
         conventValues.put(MatterSQLHelper.COLUMN_OPEN_DATE, matter.getOpenDate());
         conventValues.put(MatterSQLHelper.COLUMN_OPEN_STATUS, matter.getStatus());
+        conventValues.put(MatterSQLHelper.COLUMN_BILLABLE, matter.getBillable());
+        conventValues.put(MatterSQLHelper.COLUMN_PRACTICE_AREA, matter.getPracticeArea());
 
         database.insert(MatterSQLHelper.TABLE_MATTERS, null, conventValues);
         database.close();
@@ -216,7 +190,10 @@ public class MainListActivity extends ListActivity {
                         getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_CLIENT_NAME),
                         getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_DESCRIPTION),
                         getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_OPEN_DATE),
-                        getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_OPEN_STATUS));
+                        getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_OPEN_STATUS),
+                        Boolean.getBoolean(getStringFromColumnName(cursor,
+                                MatterSQLHelper.COLUMN_BILLABLE)),
+                        getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_PRACTICE_AREA));
                 matters.add(matter);
 
             } while (cursor.moveToNext());
@@ -242,7 +219,9 @@ public class MainListActivity extends ListActivity {
                             cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_CLIENT_NAME)),
                             cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_DESCRIPTION)),
                             cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_OPEN_DATE)),
-                            cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_OPEN_STATUS)));
+                            cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_OPEN_STATUS)),
+                            Boolean.getBoolean(cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_BILLABLE))),
+                            cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_PRACTICE_AREA)));
 
                     intent.putExtra("Matter", matter);
 

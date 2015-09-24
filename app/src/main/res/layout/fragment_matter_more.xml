@@ -22,6 +22,6 @@
         android:id="@+id/empty"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/no_items" />
+        android:text="@string/not_implemented" />
 
 </RelativeLayout>

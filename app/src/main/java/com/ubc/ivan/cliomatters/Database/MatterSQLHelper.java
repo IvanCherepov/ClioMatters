@@ -18,6 +18,9 @@ public class MatterSQLHelper extends SQLiteOpenHelper {
     public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_OPEN_DATE = "openDate";
     public static final String COLUMN_OPEN_STATUS = "status";
+    public static final String COLUMN_BILLABLE = "billable";
+    public static final String COLUMN_PRACTICE_AREA = "practice_area";
+
     private static final String DB_NAME = "clio.db";
     private static final int DB_VERSION = 1;
     private static final String TYPE_STRING = " TEXT,";
@@ -29,7 +32,9 @@ public class MatterSQLHelper extends SQLiteOpenHelper {
             COLUMN_CLIENT_NAME + TYPE_STRING +
             COLUMN_DESCRIPTION + TYPE_STRING +
             COLUMN_OPEN_DATE + TYPE_STRING +
-            COLUMN_OPEN_STATUS + " TEXT)";
+            COLUMN_OPEN_STATUS + TYPE_STRING +
+            COLUMN_BILLABLE + TYPE_STRING +
+            COLUMN_PRACTICE_AREA + " TEXT)";
 
     private static final String DB_DELETE = "DROP TABLE IF EXISTS " + DB_NAME;
 
