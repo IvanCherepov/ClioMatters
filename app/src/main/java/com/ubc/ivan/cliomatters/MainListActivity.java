@@ -1,7 +1,6 @@
 package com.ubc.ivan.cliomatters;
 
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,7 +18,6 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ubc.ivan.cliomatters.Database.MatterSQLHelper;
@@ -29,16 +28,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class MainListActivity extends ListActivity {
+public class MainListActivity extends AppCompatActivity {
 
 /*    ###Credentials
     Use the following API method and the following API token to complete this task.
@@ -79,6 +76,8 @@ public class MainListActivity extends ListActivity {
             getMattersTask.execute();
         } else {
             Toast.makeText(this, getString(R.string.network_unavailable_message), Toast.LENGTH_LONG).show();
+            getMattersFromDatabase();
+            mProgressBar.setVisibility(View.INVISIBLE);
         }
         //  pass the context from Activity to the non Activity class
         //NetworkHandler networkHandler = new NetworkHandler(this);
@@ -118,10 +117,10 @@ public class MainListActivity extends ListActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateDisplayforError() throws JSONException {
+    private void updateDisplay() throws JSONException {
         mProgressBar.setVisibility(View.INVISIBLE);
         if (mMattersData == null) {
-            alertUserAboutError();
+            Toast.makeText(this, getString(R.string.app_difficulties_message), Toast.LENGTH_LONG).show();
         } else {
             JSONArray jsonMatters = mMattersData.getJSONArray("matters");
 
@@ -181,7 +180,7 @@ public class MainListActivity extends ListActivity {
 
         Cursor cursor = database.rawQuery("SELECT * FROM " + MatterSQLHelper.TABLE_MATTERS, null);
 
-        ArrayList<Matter> matters = new ArrayList<Matter>();
+        ArrayList<Matter> matters = new ArrayList<>();
 
         if (cursor.moveToFirst()) {
             do {
@@ -259,15 +258,15 @@ public class MainListActivity extends ListActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        TextView emptyTextView = (TextView) getListView().getEmptyView();
-        emptyTextView.setText(getString(R.string.no_items));
+/*        TextView emptyTextView = (TextView) findViewById(R.id.empty);
+        emptyTextView.setText(getString(R.string.no_items));*/
     }
 
     private class GetMattersTask extends AsyncTask<Object, Void, JSONObject> {
 
         @Override
         protected JSONObject doInBackground(Object[] params) {
-            int responseCode = -1;
+            int responseCode;
             JSONObject jsonResponse = null;
 
             try {
@@ -315,10 +314,6 @@ public class MainListActivity extends ListActivity {
                     Log.i(TAG, "Unsuccessful HTTP Response Code: %d" + responseCode);
                 }
 
-            } catch (MalformedURLException e) {
-                logException(e);
-            } catch (IOException e) {
-                logException(e);
             } catch (Exception e) {
                 logException(e);
             }
@@ -331,7 +326,7 @@ public class MainListActivity extends ListActivity {
             mMattersData = result;
 
             try {
-                updateDisplayforError();
+                updateDisplay();
             } catch (JSONException e) {
                 e.printStackTrace();
             }

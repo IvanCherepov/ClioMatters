@@ -7,9 +7,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_clio_icon_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/CustomActionBar">
         <activity
             android:name=".MainListActivity"
             android:label="@string/app_name"
@@ -23,7 +23,8 @@
         <activity
             android:name=".MatterDetailsActivity"
             android:label="@string/title_activity_matter_details"
-            android:parentActivityName=".MainListActivity">
+            android:parentActivityName=".MainListActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.ubc.ivan.cliomatters.MainListActivity" />
