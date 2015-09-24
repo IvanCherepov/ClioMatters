@@ -1,17 +1,17 @@
 package com.ubc.ivan.cliomatters;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -20,6 +20,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.ubc.ivan.cliomatters.Controller.MattersController;
 import com.ubc.ivan.cliomatters.Database.MatterSQLHelper;
 import com.ubc.ivan.cliomatters.Model.Matter;
 import com.ubc.ivan.cliomatters.View.MainListAdapter;
@@ -28,32 +29,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 public class MainListActivity extends AppCompatActivity {
-
-/*    ###Credentials
-    Use the following API method and the following API token to complete this task.
-            Documentation:​
-            ​
-    http://api­docs.clio.com/v2/index.html#get­all­matters​
-    <br>
-    The following HTTP headers should be set for each request:
-            "Authorization" => "Bearer Xzd7LAtiZZ6HBBjx0DVRqalqN8yjvXgzY5qaD15a"
-            "Content­Type" => "application/json"
-            "Accept" => "application/json"*/
 
     public static final String TAG = MainListActivity.class.getSimpleName();
 
     public static final int NUBMER_OF_MATTERS = 100;
     private final String KEY_DISPLAY_NUMBER = "display_number";
     private final String KEY_DESCRIPTION = "description";
-
+    public MattersController controller;
     protected Matter matter;
     protected Matter[] mMatters;
     protected String[] mMatterNumber;
@@ -61,6 +46,7 @@ public class MainListActivity extends AppCompatActivity {
     protected ProgressBar mProgressBar;
     protected Context context = this;
     private ListView mListView;
+    private ProgressDialog mDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,36 +56,24 @@ public class MainListActivity extends AppCompatActivity {
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         mListView = (ListView) findViewById(android.R.id.list);
 
-        if (isNetworkAvailable()) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            GetMattersTask getMattersTask = new GetMattersTask();
-            getMattersTask.execute();
-        } else {
-            Toast.makeText(this, getString(R.string.network_unavailable_message), Toast.LENGTH_LONG).show();
-            getMattersFromDatabase();
-            mProgressBar.setVisibility(View.INVISIBLE);
-        }
-        //  pass the context from Activity to the non Activity class
-        //NetworkHandler networkHandler = new NetworkHandler(this);
-        //networkHandler.getJSON(MattersApiConstants.CLIO_URL);
+        controller = new MattersController(this);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getMattersFromDatabase();
+    }
 
     private void logException(Exception e) {
         Log.e(TAG, "Excepption caught! ", e);
     }
 
-    private boolean isNetworkAvailable() {
-        ConnectivityManager manager = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
-
-        boolean isAvailabe = false;
-        if (networkInfo != null && networkInfo.isConnected()) {
-            isAvailabe = true;
-        }
-
-        return isAvailabe;
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main_list, menu);
+        return true;
     }
 
     @Override
@@ -108,19 +82,37 @@ public class MainListActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
+/*
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        }*/
+
+        if (id == R.id.action_refresh) {
+/*            GetMattersTask getMattersTask = new GetMattersTask();
+            getMattersTask.execute();*/
+
+            NetworkHandler networkHandler = new NetworkHandler(this.context);
+
+            if (networkHandler.isNetworkAvailable()) {
+                GetMattersTask getMattersTask = new GetMattersTask();
+                getMattersTask.execute();
+
+            } else {
+                mProgressBar.setVisibility(View.VISIBLE);
+                Toast.makeText(this, getString(R.string.network_unavailable_message),
+                        Toast.LENGTH_LONG).show();
+                getMattersFromDatabase();
+                mProgressBar.setVisibility(View.INVISIBLE);
+            }
         }
 
         return super.onOptionsItemSelected(item);
     }
 
     private void updateDisplay() throws JSONException {
-        mProgressBar.setVisibility(View.INVISIBLE);
         if (mMattersData == null) {
-            Toast.makeText(this, getString(R.string.app_difficulties_message), Toast.LENGTH_LONG).show();
+            alertUserAboutError();
         } else {
             JSONArray jsonMatters = mMattersData.getJSONArray("matters");
 
@@ -265,58 +257,18 @@ public class MainListActivity extends AppCompatActivity {
     private class GetMattersTask extends AsyncTask<Object, Void, JSONObject> {
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mDialog = new ProgressDialog(MainListActivity.this);
+            mDialog.setCancelable(false);
+            mDialog.setMessage("Download is in progress...");
+            mDialog.show();
+        }
+
+        @Override
         protected JSONObject doInBackground(Object[] params) {
-            int responseCode;
             JSONObject jsonResponse = null;
-
-            try {
-                URL clioURL = new URL(MattersApiConstants.CLIO_URL);
-                HttpURLConnection connection = (HttpURLConnection) clioURL.openConnection();
-                connection.setRequestProperty("Authorization", MattersApiConstants.CLIO_AUTH);
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("Accept", "application/json");
-                connection.connect();
-
-
-                responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-
-                    InputStream inputStream = connection.getInputStream();
-                    Reader reader = new InputStreamReader(inputStream);
-                    int nextCharacter;
-                    String responseData = "";
-
-                    while (true) {
-                        nextCharacter = reader.read();
-                        if (nextCharacter == -1) {
-                            break;
-                        }
-                        responseData += (char) nextCharacter;
-                    }
-
-                    Log.v(TAG, "Response: " + responseData);
-
-                    jsonResponse = new JSONObject(responseData);
-//                    String records = jsonResponse.getString("records");
-//
-//                    Log.v(TAG, "Number of matters: " + records);
-//
-//                    JSONArray jsonMatters = jsonResponse.getJSONArray("matters");
-//                    for (int i = 0; i < jsonMatters.length(); i++) {
-//                        JSONObject jsonMatter = jsonMatters.getJSONObject(i);
-//                        String description = jsonMatter.getString("description");
-//                        Log.v(TAG, "Matter " + i + ": " + description);
-//                    }
-//
-//                    return responseData.toString();
-
-                } else {
-                    Log.i(TAG, "Unsuccessful HTTP Response Code: %d" + responseCode);
-                }
-
-            } catch (Exception e) {
-                logException(e);
-            }
+            jsonResponse = controller.getMatters();
 
             return jsonResponse;
         }
@@ -325,6 +277,9 @@ public class MainListActivity extends AppCompatActivity {
         protected void onPostExecute(JSONObject result) {
             mMattersData = result;
 
+            if (mDialog.isShowing()) {
+                mDialog.dismiss();
+            }
             try {
                 updateDisplay();
             } catch (JSONException e) {

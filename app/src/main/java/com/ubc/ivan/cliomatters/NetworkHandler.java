@@ -3,18 +3,14 @@ package com.ubc.ivan.cliomatters;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.json.JSONObject;
 
-import java.io.IOException;
+import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -23,23 +19,13 @@ import java.net.URL;
 public class NetworkHandler {
 
     public static final String TAG = NetworkHandler.class.getSimpleName();
-    protected JSONObject mMattersData;
     Context mContext;
 
-    public NetworkHandler(Context mContext) {
-        this.mContext = mContext;
+    public NetworkHandler(Context context) {
+        mContext = context;
     }
 
-    public void getJSON(String url) {
-        if (isNetworkAvailable()) {
-            GetMattersTask getMattersTask = new GetMattersTask();
-            getMattersTask.execute();
-        } else {
-            Toast.makeText(mContext, "Network is not available!", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private boolean isNetworkAvailable() {
+    public boolean isNetworkAvailable() {
         ConnectivityManager manager = (ConnectivityManager)
                 mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
@@ -48,76 +34,47 @@ public class NetworkHandler {
         if (networkInfo != null && networkInfo.isConnected()) {
             isAvailabe = true;
         }
-
         return isAvailabe;
     }
 
-    private class GetMattersTask extends AsyncTask<Object, Void, JSONObject> {
+    public JSONObject getJason(String Url) {
+        int responseCode;
+        JSONObject jsonResponse = null;
 
-        @Override
-        protected JSONObject doInBackground(Object[] params) {
-            int responseCode = -1;
-            JSONObject jsonResponse = null;
+        try {
+            URL clioURL = new URL(MattersApiConstants.CLIO_URL);
+            HttpURLConnection connection = (HttpURLConnection) clioURL.openConnection();
+            connection.setRequestProperty("Authorization", MattersApiConstants.CLIO_AUTH);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.connect();
 
-            try {
-                URL clioURL = new URL(MattersApiConstants.CLIO_URL);
-                HttpURLConnection connection = (HttpURLConnection) clioURL.openConnection();
-                connection.setRequestProperty("Authorization", MattersApiConstants.CLIO_AUTH);
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("Accept", "application/json");
-                connection.connect();
+            responseCode = connection.getResponseCode();
 
-
-                responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-
-                    InputStream inputStream = connection.getInputStream();
-                    Reader reader = new InputStreamReader(inputStream);
-                    int nextCharacter;
-                    String responseData = "";
-
-                    while (true) {
-                        nextCharacter = reader.read();
-                        if (nextCharacter == -1) {
-                            break;
-                        }
-                        responseData += (char) nextCharacter;
-                    }
-
-                    Log.v(TAG, "Response: " + responseData);
-
-                    jsonResponse = new JSONObject(responseData);
-//                    String records = jsonResponse.getString("records");
-//
-//                    Log.v(TAG, "Number of matters: " + records);
-//
-//                    JSONArray jsonMatters = jsonResponse.getJSONArray("matters");
-//                    for (int i = 0; i < jsonMatters.length(); i++) {
-//                        JSONObject jsonMatter = jsonMatters.getJSONObject(i);
-//                        String description = jsonMatter.getString("description");
-//                        Log.v(TAG, "Matter " + i + ": " + description);
-//                    }
-//
-//                    return responseData.toString();
-
-                } else {
-                    Log.i(TAG, "Unsuccessful HTTP Response Code: %d" + responseCode);
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                InputStream inputStream = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+                StringBuffer response = new StringBuffer();
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
                 }
+                jsonResponse = new JSONObject(response.toString());
+                reader.close();
 
-            } catch (MalformedURLException e) {
-                Log.e(TAG, "Exception caught: ", e);
-            } catch (IOException e) {
-                Log.e(TAG, "Exception caught: ", e);
-            } catch (Exception e) {
-                Log.e(TAG, "Exception caught: ", e);
+                Log.v(TAG, "Response: " + response);
+            } else {
+                Log.i(TAG, "Unsuccessful HTTP Response Code: %d" + responseCode);
             }
 
-            return jsonResponse;
+        } catch (Exception e) {
+            logException(e);
         }
+        return jsonResponse;
+    }
 
-        @Override
-        protected void onPostExecute(JSONObject result) {
-            mMattersData = result;
-        }
+    private void logException(Exception e) {
+        Log.e(TAG, "Excepption caught! ", e);
     }
 }
+

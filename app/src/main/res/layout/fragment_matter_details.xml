@@ -11,11 +11,11 @@
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/linearLayout3"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:layout_alignParentStart="false"
         android:layout_alignParentTop="true"
         android:orientation="vertical"
+        android:paddingTop="20dp"
         android:weightSum="1">
 
 
@@ -41,6 +41,7 @@
             android:layout_alignStart="@+id/txtNumber"
             android:layout_weight="0.4"
             android:orientation="horizontal"
+            android:paddingTop="10dp"
             android:weightSum="1">
 
             <TextView
@@ -71,10 +72,11 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
+        android:layout_below="@+id/linearLayout2"
         android:background="#5797a78c"
         android:baselineAligned="false"
         android:orientation="horizontal"
+        android:paddingTop="20dp"
         android:weightSum="1">
 
         <LinearLayout
