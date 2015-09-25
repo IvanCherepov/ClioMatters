@@ -8,9 +8,9 @@ import java.io.Serializable;
 public class Matter implements Serializable {
     int id;
 
-    Client client;
-    String displayName, clientName, description, openDate, status, practiceArea;
-    Boolean billable;
+    private Client client;
+    private String displayName, clientName, description, openDate, status, practiceArea;
+    private Boolean billable;
 
     public Matter(int id, String displayName,
                   String clientName, String description,

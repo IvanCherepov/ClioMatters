@@ -2,11 +2,8 @@ package com.ubc.ivan.cliomatters;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -18,10 +15,11 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ubc.ivan.cliomatters.Controller.MattersController;
-import com.ubc.ivan.cliomatters.Database.MatterSQLHelper;
+import com.ubc.ivan.cliomatters.Database.MatterDataSource;
 import com.ubc.ivan.cliomatters.Model.Matter;
 import com.ubc.ivan.cliomatters.View.MainListAdapter;
 
@@ -136,61 +134,15 @@ public class MainListActivity extends AppCompatActivity {
     }
 
     private void addMatterToDatabase(Matter matter, int counter) {
-        MatterSQLHelper matterSQLHelper = new MatterSQLHelper(context);
-
-        SQLiteDatabase database = matterSQLHelper.getWritableDatabase();
-
-        ContentValues conventValues = new ContentValues();
-        conventValues.put(MatterSQLHelper.COLUMN_ID, counter);
-        conventValues.put(MatterSQLHelper.COLUMN_MATTER_ID, matter.getId());
-        conventValues.put(MatterSQLHelper.COLUMN_DISPLAY_NUMBER, matter.getDisplayName());
-        conventValues.put(MatterSQLHelper.COLUMN_CLIENT_NAME, matter.getClientName());
-        conventValues.put(MatterSQLHelper.COLUMN_DESCRIPTION, matter.getDescription());
-        conventValues.put(MatterSQLHelper.COLUMN_OPEN_DATE, matter.getOpenDate());
-        conventValues.put(MatterSQLHelper.COLUMN_OPEN_STATUS, matter.getStatus());
-        conventValues.put(MatterSQLHelper.COLUMN_BILLABLE, matter.getBillable());
-        conventValues.put(MatterSQLHelper.COLUMN_PRACTICE_AREA, matter.getPracticeArea());
-
-        database.insert(MatterSQLHelper.TABLE_MATTERS, null, conventValues);
-        database.close();
+        MatterDataSource dataSource = new MatterDataSource(this);
+        dataSource.createMatter(matter, counter);
     }
 
-    private int getIntFromColumnName(Cursor cursor, String columnName) {
-        int columnIndex = cursor.getColumnIndex(columnName);
-        return cursor.getInt(columnIndex);
-    }
-
-    private String getStringFromColumnName(Cursor cursor, String columnName) {
-        int columnIndex = cursor.getColumnIndex(columnName);
-        return cursor.getString(columnIndex);
-    }
 
     private void getMattersFromDatabase() {
-        MatterSQLHelper matterSQLHelper = new MatterSQLHelper(context);
-
-        final SQLiteDatabase database = matterSQLHelper.getReadableDatabase();
-
-        Cursor cursor = database.rawQuery("SELECT * FROM " + MatterSQLHelper.TABLE_MATTERS, null);
-
-        ArrayList<Matter> matters = new ArrayList<>();
-
-        if (cursor.moveToFirst()) {
-            do {
-                Matter matter = new Matter(getIntFromColumnName(cursor, MatterSQLHelper.COLUMN_MATTER_ID),
-                        getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_DISPLAY_NUMBER),
-                        getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_CLIENT_NAME),
-                        getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_DESCRIPTION),
-                        getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_OPEN_DATE),
-                        getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_OPEN_STATUS),
-                        Boolean.getBoolean(getStringFromColumnName(cursor,
-                                MatterSQLHelper.COLUMN_BILLABLE)),
-                        getStringFromColumnName(cursor, MatterSQLHelper.COLUMN_PRACTICE_AREA));
-                matters.add(matter);
-
-            } while (cursor.moveToNext());
-        }
-
-        ListAdapter listAdapter = new MainListAdapter(MainListActivity.this,
+        final MatterDataSource dataSource = new MatterDataSource(this);
+        ArrayList<Matter> matters = dataSource.readMatters();
+        final ListAdapter listAdapter = new MainListAdapter(MainListActivity.this,
                 R.layout.main_list_item, matters);
         mListView.setAdapter(listAdapter);
 
@@ -198,49 +150,15 @@ public class MainListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getApplicationContext(), MatterDetailsActivity.class);
-                //intent.setData(Uri.parse("http:google.com"));
+                intent.putExtra("Matter", dataSource.readMatter(position));
 
-                Cursor cursor = database.rawQuery("SELECT * FROM " +
-                        MatterSQLHelper.TABLE_MATTERS +
-                        " WHERE _id = " + Integer.toString(position + 1), null);
-
-                if (cursor.moveToFirst()) {
-                    Matter matter = new Matter(cursor.getInt(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_MATTER_ID)),
-                            cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_DISPLAY_NUMBER)),
-                            cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_CLIENT_NAME)),
-                            cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_DESCRIPTION)),
-                            cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_OPEN_DATE)),
-                            cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_OPEN_STATUS)),
-                            Boolean.getBoolean(cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_BILLABLE))),
-                            cursor.getString(cursor.getColumnIndexOrThrow(MatterSQLHelper.COLUMN_PRACTICE_AREA)));
-
-                    intent.putExtra("Matter", matter);
-
-                    startActivity(intent);
-                }
+                startActivity(intent);
             }
         });
 
 
     }
 
-/*    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        JSONArray jsonMatters = null;
-        try {
-            jsonMatters = mMattersData.getJSONArray("matters");
-            JSONObject jsonMatter = jsonMatters.getJSONObject(position);
-            String matterID = jsonMatter.getString("id");
-
-            Intent intent = new Intent(this, MatterDetailsActivity.class);
-            intent.setType(matterID);
-            startActivity(intent);
-
-        } catch (JSONException e) {
-            logException(e);
-        }
-    }*/
 
     private void alertUserAboutError() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -250,8 +168,8 @@ public class MainListActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
 
-/*        TextView emptyTextView = (TextView) findViewById(R.id.empty);
-        emptyTextView.setText(getString(R.string.no_items));*/
+        TextView emptyTextView = (TextView) findViewById(R.id.empty);
+        emptyTextView.setText(getString(R.string.no_items));
     }
 
     private class GetMattersTask extends AsyncTask<Object, Void, JSONObject> {
@@ -267,10 +185,7 @@ public class MainListActivity extends AppCompatActivity {
 
         @Override
         protected JSONObject doInBackground(Object[] params) {
-            JSONObject jsonResponse = null;
-            jsonResponse = controller.getMatters();
-
-            return jsonResponse;
+            return controller.getMatters();
         }
 
         @Override
