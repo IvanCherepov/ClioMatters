@@ -1,4 +1,4 @@
-package com.ubc.ivan.cliomatters;
+package com.ubc.ivan.cliomatters.Utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -42,9 +42,9 @@ public class NetworkHandler {
         JSONObject jsonResponse = null;
 
         try {
-            URL clioURL = new URL(MattersApiConstants.CLIO_URL);
+            URL clioURL = new URL(ApiConstants.CLIO_URL);
             HttpURLConnection connection = (HttpURLConnection) clioURL.openConnection();
-            connection.setRequestProperty("Authorization", MattersApiConstants.CLIO_AUTH);
+            connection.setRequestProperty("Authorization", ApiConstants.CLIO_AUTH);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
             connection.connect();
@@ -55,7 +55,7 @@ public class NetworkHandler {
                 InputStream inputStream = connection.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
-                StringBuffer response = new StringBuffer();
+                StringBuffer response = null;
                 while ((line = reader.readLine()) != null) {
                     response.append(line);
                 }

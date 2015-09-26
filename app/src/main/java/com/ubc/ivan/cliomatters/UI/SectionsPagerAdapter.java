@@ -1,4 +1,4 @@
-package com.ubc.ivan.cliomatters;
+package com.ubc.ivan.cliomatters.UI;
 
 /**
  * Created by ivan on 23/09/15.
@@ -8,6 +8,8 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+
+import com.ubc.ivan.cliomatters.R;
 
 import java.util.Locale;
 
@@ -32,10 +34,10 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         switch (position) {
             case 0:
-                fragment = new MatterInfoFragment();
+                fragment = new InfoFragment();
                 break;
             case 1:
-                fragment = new MatterMoreFragment();
+                fragment = new MoreFragment();
                 break;
         }
         return fragment;
@@ -56,5 +58,16 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
                 return mContext.getString(R.string.title_section2).toUpperCase(l);
         }
         return null;
+    }
+
+    public int getIcon(int position) {
+        switch (position) {
+            case 0:
+                return R.drawable.ic_tab_info;
+            case 1:
+                return R.drawable.ic_tab_more;
+
+        }
+        return R.drawable.ic_tab_info;
     }
 }

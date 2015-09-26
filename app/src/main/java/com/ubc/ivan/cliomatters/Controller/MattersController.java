@@ -2,8 +2,8 @@ package com.ubc.ivan.cliomatters.Controller;
 
 import android.content.Context;
 
-import com.ubc.ivan.cliomatters.MattersApiConstants;
-import com.ubc.ivan.cliomatters.NetworkHandler;
+import com.ubc.ivan.cliomatters.Utils.ApiConstants;
+import com.ubc.ivan.cliomatters.Utils.NetworkHandler;
 
 import org.json.JSONObject;
 
@@ -22,7 +22,7 @@ public class MattersController {
         JSONObject matters;
 
         NetworkHandler networkHandler = new NetworkHandler(mContext);
-        matters = networkHandler.getJason(MattersApiConstants.CLIO_URL);
+        matters = networkHandler.getJason(ApiConstants.CLIO_URL);
 
         return matters;
     }

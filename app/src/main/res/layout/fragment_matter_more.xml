@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="@dimen/activity_horizontal_margin"
-    tools:context="com.ubc.ivan.cliomatters.MatterDetailsActivity$PlaceholderFragment">
+    tools:context="com.ubc.ivan.cliomatters.UI.DetailsActivity$PlaceholderFragment">
 
     <TextView
         android:id="@+id/section_label"

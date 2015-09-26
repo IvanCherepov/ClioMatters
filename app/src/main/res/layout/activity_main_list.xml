@@ -10,15 +10,14 @@
     <ListView
         android:id="@android:id/list"
         android:layout_width="fill_parent"
-        android:layout_height="match_parent"
+        android:layout_height="fill_parent"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:background="#26d3f356"
+        android:clipToPadding="false"
         android:dividerHeight="1px"
-        android:paddingLeft="12dp" />
+        android:paddingBottom="@dimen/main_list_vertical_margin" />
 
     <TextView
         android:id="@android:id/empty"

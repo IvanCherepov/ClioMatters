@@ -1,4 +1,4 @@
-package com.ubc.ivan.cliomatters;
+package com.ubc.ivan.cliomatters.UI;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,12 +14,13 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ubc.ivan.cliomatters.Controller.MattersController;
 import com.ubc.ivan.cliomatters.Database.MatterDataSource;
 import com.ubc.ivan.cliomatters.Model.Matter;
+import com.ubc.ivan.cliomatters.R;
+import com.ubc.ivan.cliomatters.Utils.NetworkHandler;
 import com.ubc.ivan.cliomatters.View.MainListAdapter;
 
 import org.json.JSONArray;
@@ -53,7 +53,6 @@ public class MainListActivity extends AppCompatActivity {
 
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         mListView = (ListView) findViewById(android.R.id.list);
-
         controller = new MattersController(this);
     }
 
@@ -61,10 +60,6 @@ public class MainListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         getMattersFromDatabase();
-    }
-
-    private void logException(Exception e) {
-        Log.e(TAG, "Excepption caught! ", e);
     }
 
     @Override
@@ -76,36 +71,33 @@ public class MainListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-/*
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }*/
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                NetworkHandler networkHandler = new NetworkHandler(this.context);
 
-        if (id == R.id.action_refresh) {
-/*            GetMattersTask getMattersTask = new GetMattersTask();
-            getMattersTask.execute();*/
+                if (networkHandler.isNetworkAvailable()) {
+                    GetMattersTask getMattersTask = new GetMattersTask();
+                    getMattersTask.execute();
 
-            NetworkHandler networkHandler = new NetworkHandler(this.context);
-
-            if (networkHandler.isNetworkAvailable()) {
-                GetMattersTask getMattersTask = new GetMattersTask();
-                getMattersTask.execute();
-
-            } else {
-                mProgressBar.setVisibility(View.VISIBLE);
-                Toast.makeText(this, getString(R.string.network_unavailable_message),
+                } else {
+                    mProgressBar.setVisibility(View.VISIBLE);
+                    Toast.makeText(this, getString(R.string.network_unavailable_message),
+                            Toast.LENGTH_LONG).show();
+                    getMattersFromDatabase();
+                    mProgressBar.setVisibility(View.INVISIBLE);
+                }
+                return true;
+            case R.id.action_menu:
+                Toast.makeText(this, getString(R.string.not_implemented),
                         Toast.LENGTH_LONG).show();
-                getMattersFromDatabase();
-                mProgressBar.setVisibility(View.INVISIBLE);
-            }
+                return true;
+            case R.id.action_search:
+                Toast.makeText(this, getString(R.string.not_implemented),
+                        Toast.LENGTH_LONG).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     private void updateDisplay() throws JSONException {
@@ -149,16 +141,13 @@ public class MainListActivity extends AppCompatActivity {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getApplicationContext(), MatterDetailsActivity.class);
-                intent.putExtra("Matter", dataSource.readMatter(position));
+                Intent intent = new Intent(getApplicationContext(), DetailsActivity.class);
+                intent.putExtra("matter", dataSource.readMatter(position));
 
                 startActivity(intent);
             }
         });
-
-
     }
-
 
     private void alertUserAboutError() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -167,9 +156,6 @@ public class MainListActivity extends AppCompatActivity {
         builder.setPositiveButton(android.R.string.ok, null);
         AlertDialog dialog = builder.create();
         dialog.show();
-
-        TextView emptyTextView = (TextView) findViewById(R.id.empty);
-        emptyTextView.setText(getString(R.string.no_items));
     }
 
     private class GetMattersTask extends AsyncTask<Object, Void, JSONObject> {

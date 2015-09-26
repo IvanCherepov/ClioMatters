@@ -1,4 +1,4 @@
-package com.ubc.ivan.cliomatters;
+package com.ubc.ivan.cliomatters.UI;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,25 +8,23 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.ubc.ivan.cliomatters.Model.Matter;
+import com.ubc.ivan.cliomatters.R;
 
 /**
  * Created by ivan on 23/09/15.
  */
-public class MatterInfoFragment extends Fragment {
+public class InfoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_matter_details, container, false);
-        return rootView;
+        return inflater.inflate(R.layout.fragment_matter_details, container, false);
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        Matter matter = ((MatterDetailsActivity) getActivity()).getMatter();
-
-        String mID = matter.getDescription();
+        Matter matter = ((DetailsActivity) getActivity()).getMatter();
 
         TextView number = (TextView) getView().findViewById(R.id.txtNumber);
         TextView practiceArea = (TextView) getView().findViewById(R.id.txtPracticeArea);

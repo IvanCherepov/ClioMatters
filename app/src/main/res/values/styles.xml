@@ -6,12 +6,31 @@
     </style>
 
     <style name="CustomActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:actionBarStyle">@style/MyActionBar</item>'
-        <item name="actionBarStyle">@style/MyActionBar</item>
+        -
+        <item name="android:actionBarStyle">@style/ActionBar</item>
+        <item name="actionBarStyle">@style/ActionBar</item>
+        <item name="android:actionBarTabStyle">@style/ActionBarTab</item>
+        <item name="actionBarTabStyle">@style/ActionBarTab</item>
+        <item name="android:actionBarTabBarStyle">@style/ActionBarTab</item>
+        <item name="actionBarTabBarStyle">@style/ActionBarTab</item>
+        <item name="actionBarTabTextStyle">@style/TabTextColor</item>
+        <item name="android:actionBarTabTextStyle">@style/TabTextColor</item>
     </style>
 
-    <style name="MyActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">@drawable/action_bar_barckground</item>
-        <item name="background">@drawable/action_bar_barckground</item>
+    <style name="ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@drawable/action_bar_background</item>
+        <item name="background">@drawable/action_bar_background</item>
     </style>
+
+    <style name="ActionBarTab" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@drawable/tab_bar_background</item>
+        <item name="background">@drawable/tab_bar_background</item>
+        <item name="android:gravity">center</item>
+        <item name="android:showDividers">none</item>
+    </style>
+
+    <style name="TabTextColor" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:textColor">@drawable/tab_text</item>
+    </style>
+
 </resources>

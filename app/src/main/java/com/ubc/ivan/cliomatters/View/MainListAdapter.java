@@ -1,10 +1,12 @@
 package com.ubc.ivan.cliomatters.View;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ubc.ivan.cliomatters.Model.Matter;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
  * Created by ivan on 22/09/15
  */
 public class MainListAdapter extends ArrayAdapter<Matter> {
+    public static final String TAG = MainListAdapter.class.getSimpleName();
 
     private Context mContext;
     private ArrayList<Matter> mMatters;
@@ -27,6 +30,10 @@ public class MainListAdapter extends ArrayAdapter<Matter> {
         this.mMatters = matters;
     }
 
+    private void logException(Exception e) {
+        Log.e(TAG, "Excepption caught! ", e);
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
@@ -35,11 +42,21 @@ public class MainListAdapter extends ArrayAdapter<Matter> {
 
         Matter matter = getItem(position);
 
-        TextView title = (TextView) convertView.findViewById(R.id.title);
-        TextView subtitle = (TextView) convertView.findViewById(R.id.subtitle);
+        try {
+            TextView title = (TextView) convertView.findViewById(R.id.title);
+            TextView subtitle = (TextView) convertView.findViewById(R.id.subtitle);
+            ImageView imageButton = (ImageView) convertView.findViewById(R.id.moreIcon);
 
         title.setText(matter.getDisplayName());
         subtitle.setText(matter.getDescription());
+            if (matter.getStatus().equals("Open")) {
+                imageButton.setImageResource(R.drawable.ic_button_warning);
+            } else {
+                imageButton.setImageResource(R.drawable.ic_action_more);
+            }
+        } catch (Exception e) {
+            logException(e);
+        }
 
         return convertView;
     }

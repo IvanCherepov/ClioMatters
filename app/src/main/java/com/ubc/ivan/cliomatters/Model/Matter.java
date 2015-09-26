@@ -1,13 +1,24 @@
 package com.ubc.ivan.cliomatters.Model;
 
-import java.io.Serializable;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Created by ivan on 21/09/15.
  */
-public class Matter implements Serializable {
-    int id;
+public class Matter implements Parcelable {
+    public static final Creator<Matter> CREATOR = new Creator<Matter>() {
+        @Override
+        public Matter createFromParcel(Parcel in) {
+            return new Matter(in);
+        }
 
+        @Override
+        public Matter[] newArray(int size) {
+            return new Matter[size];
+        }
+    };
+    int id;
     private Client client;
     private String displayName, clientName, description, openDate, status, practiceArea;
     private Boolean billable;
@@ -25,6 +36,17 @@ public class Matter implements Serializable {
         this.status = status;
         this.billable = billable;
         this.practiceArea = practiceArea;
+    }
+
+    protected Matter(Parcel in) {
+        id = in.readInt();
+        displayName = in.readString();
+        clientName = in.readString();
+        description = in.readString();
+        openDate = in.readString();
+        status = in.readString();
+        practiceArea = in.readString();
+        billable = in.readByte() != 0;
     }
 
     public int getId() {
@@ -98,5 +120,22 @@ public class Matter implements Serializable {
 
     public void setBillable(Boolean billable) {
         this.billable = billable;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(displayName);
+        dest.writeString(clientName);
+        dest.writeString(description);
+        dest.writeString(openDate);
+        dest.writeString(status);
+        dest.writeString(practiceArea);
+        dest.writeByte((byte) (billable ? 1 : 0));
     }
 }

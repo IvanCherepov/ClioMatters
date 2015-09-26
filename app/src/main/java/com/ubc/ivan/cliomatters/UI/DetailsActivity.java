@@ -1,4 +1,4 @@
-package com.ubc.ivan.cliomatters;
+package com.ubc.ivan.cliomatters.UI;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,10 +9,12 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.ubc.ivan.cliomatters.Model.Matter;
+import com.ubc.ivan.cliomatters.R;
 
-public class MatterDetailsActivity extends AppCompatActivity implements ActionBar.TabListener {
+public class DetailsActivity extends AppCompatActivity implements ActionBar.TabListener {
 
     //TODO: fix to matter description
     protected String mDescription;
@@ -68,15 +70,14 @@ public class MatterDetailsActivity extends AppCompatActivity implements ActionBa
             actionBar.addTab(
                     actionBar.newTab()
                             .setText(mSectionsPagerAdapter.getPageTitle(i))
+                                    //.setIcon(mSectionsPagerAdapter.getIcon(i))
                             .setTabListener(this));
         }
-
-        Matter matter = getMatter();
     }
 
     public Matter getMatter() {
-        Intent intent = getIntent();
-        return (Matter) intent.getSerializableExtra("Matter");
+        Bundle data = getIntent().getExtras();
+        return (Matter) data.getParcelable("matter");
     }
 
     private void shareMatter() {
@@ -95,18 +96,17 @@ public class MatterDetailsActivity extends AppCompatActivity implements ActionBa
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_share) {
-            shareMatter();
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_share:
+                shareMatter();
+                return true;
+            case R.id.action_edit:
+                Toast.makeText(this, getString(R.string.not_implemented),
+                        Toast.LENGTH_LONG).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -1,7 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.ubc.ivan.cliomatters.MatterDetailsActivity">
+    tools:context="com.ubc.ivan.cliomatters.UI.DetailsActivity">
+    <item
+        android:id="@+id/action_edit"
+        android:icon="@drawable/ic_action_edit"
+        android:title="@string/action_edit"
+        app:showAsAction="always"></item>
     <item
         android:id="@+id/action_share"
         android:icon="@drawable/ic_action_share"
