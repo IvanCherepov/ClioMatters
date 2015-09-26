@@ -18,10 +18,10 @@ import java.util.ArrayList;
  * Created by ivan on 22/09/15
  */
 public class MainListAdapter extends ArrayAdapter<Matter> {
-    public static final String TAG = MainListAdapter.class.getSimpleName();
+    private static final String TAG = MainListAdapter.class.getSimpleName();
 
-    private Context mContext;
-    private ArrayList<Matter> mMatters;
+    private final Context mContext;
+    private final ArrayList<Matter> mMatters;
 
     public MainListAdapter(Context context, int resource, ArrayList<Matter> matters) {
         super(context, resource, matters);
@@ -31,7 +31,7 @@ public class MainListAdapter extends ArrayAdapter<Matter> {
     }
 
     private void logException(Exception e) {
-        Log.e(TAG, "Excepption caught! ", e);
+        Log.e(TAG, "Exception caught! ", e);
     }
 
     @Override
@@ -47,10 +47,14 @@ public class MainListAdapter extends ArrayAdapter<Matter> {
             TextView subtitle = (TextView) convertView.findViewById(R.id.subtitle);
             ImageView imageButton = (ImageView) convertView.findViewById(R.id.moreIcon);
 
-        title.setText(matter.getDisplayName());
-        subtitle.setText(matter.getDescription());
+            title.setText(matter.getDisplayName());
+            subtitle.setText(matter.getDescription());
             if (matter.getStatus().equals("Open")) {
-                imageButton.setImageResource(R.drawable.ic_button_warning);
+                imageButton.setImageResource(R.drawable.ic_action_more);
+            } else if (matter.getStatus().equals("Pending")) {
+                imageButton.setImageResource(R.drawable.ic_action_more_horiz);
+            } else if (matter.getStatus().equals("Closed")) {
+                imageButton.setImageResource(R.drawable.ic_action_more_vert);
             } else {
                 imageButton.setImageResource(R.drawable.ic_action_more);
             }

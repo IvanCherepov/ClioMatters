@@ -14,11 +14,10 @@ import java.util.ArrayList;
  */
 public class MatterDataSource {
 
-    private Context mContext;
-    private MatterSQLHelper mMatterSQLHelper;
+    private final MatterSQLHelper mMatterSQLHelper;
 
     public MatterDataSource(Context context) {
-        this.mContext = context;
+        Context mContext = context;
         mMatterSQLHelper = new MatterSQLHelper(context);
         SQLiteDatabase database = mMatterSQLHelper.getReadableDatabase();
         database.close();

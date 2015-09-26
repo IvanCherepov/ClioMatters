@@ -16,9 +16,6 @@ import com.ubc.ivan.cliomatters.R;
 
 public class DetailsActivity extends AppCompatActivity implements ActionBar.TabListener {
 
-    //TODO: fix to matter description
-    protected String mDescription;
-    protected String mID;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -27,11 +24,11 @@ public class DetailsActivity extends AppCompatActivity implements ActionBar.TabL
      * may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
-    SectionsPagerAdapter mSectionsPagerAdapter;
+    private SectionsPagerAdapter mSectionsPagerAdapter;
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    ViewPager mViewPager;
+    private ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,9 +78,11 @@ public class DetailsActivity extends AppCompatActivity implements ActionBar.TabL
     }
 
     private void shareMatter() {
+        Matter matter = getMatter();
+
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, mDescription);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, matter.getDisplayName() + "/" + matter.getDescription());
         startActivity(Intent.createChooser(shareIntent, getString(R.string.share_chooser_title)));
     }
 

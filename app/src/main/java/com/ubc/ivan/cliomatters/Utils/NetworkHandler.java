@@ -18,8 +18,8 @@ import java.net.URL;
  */
 public class NetworkHandler {
 
-    public static final String TAG = NetworkHandler.class.getSimpleName();
-    Context mContext;
+    private static final String TAG = NetworkHandler.class.getSimpleName();
+    private final Context mContext;
 
     public NetworkHandler(Context context) {
         mContext = context;
@@ -37,14 +37,14 @@ public class NetworkHandler {
         return isAvailabe;
     }
 
-    public JSONObject getJason(String Url) {
+    public JSONObject getJason(String url, String auth) {
         int responseCode;
         JSONObject jsonResponse = null;
 
         try {
-            URL clioURL = new URL(ApiConstants.CLIO_URL);
+            URL clioURL = new URL(url);
             HttpURLConnection connection = (HttpURLConnection) clioURL.openConnection();
-            connection.setRequestProperty("Authorization", ApiConstants.CLIO_AUTH);
+            connection.setRequestProperty("Authorization", auth);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
             connection.connect();
@@ -55,13 +55,12 @@ public class NetworkHandler {
                 InputStream inputStream = connection.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
-                StringBuffer response = null;
+                StringBuffer response = new StringBuffer();
                 while ((line = reader.readLine()) != null) {
                     response.append(line);
                 }
                 jsonResponse = new JSONObject(response.toString());
                 reader.close();
-
                 Log.v(TAG, "Response: " + response);
             } else {
                 Log.i(TAG, "Unsuccessful HTTP Response Code: %d" + responseCode);
@@ -74,7 +73,7 @@ public class NetworkHandler {
     }
 
     private void logException(Exception e) {
-        Log.e(TAG, "Excepption caught! ", e);
+        Log.e(TAG, "Exception caught! ", e);
     }
 }
 

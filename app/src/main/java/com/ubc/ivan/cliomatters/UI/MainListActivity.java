@@ -31,20 +31,13 @@ import java.util.ArrayList;
 
 public class MainListActivity extends AppCompatActivity {
 
-    public static final String TAG = MainListActivity.class.getSimpleName();
-
-    public static final int NUBMER_OF_MATTERS = 100;
-    private final String KEY_DISPLAY_NUMBER = "display_number";
-    private final String KEY_DESCRIPTION = "description";
-    public MattersController controller;
-    protected Matter matter;
-    protected Matter[] mMatters;
-    protected String[] mMatterNumber;
-    protected JSONObject mMattersData;
-    protected ProgressBar mProgressBar;
-    protected Context context = this;
+    private final Context context = this;
+    private MattersController controller;
+    private Matter matter;
+    private JSONObject mMattersData;
     private ListView mListView;
     private ProgressDialog mDialog;
+    private ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +52,7 @@ public class MainListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // reading data from db
         getMattersFromDatabase();
     }
 
@@ -76,6 +70,7 @@ public class MainListActivity extends AppCompatActivity {
                 NetworkHandler networkHandler = new NetworkHandler(this.context);
 
                 if (networkHandler.isNetworkAvailable()) {
+                    //calling async task
                     GetMattersTask getMattersTask = new GetMattersTask();
                     getMattersTask.execute();
 
@@ -158,8 +153,8 @@ public class MainListActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    // async class for setting up http request and getting JSON
     private class GetMattersTask extends AsyncTask<Object, Void, JSONObject> {
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();

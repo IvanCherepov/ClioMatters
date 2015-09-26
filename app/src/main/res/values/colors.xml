@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="clio">#7174FF</color>
-    <color name="transparent">#00000000</color>
-    <color name="tab_highlight">#ff9ecfbf</color>
+    <!--<color name="transparent">#00000000</color>-->
+    <!--<color name="tab_highlight">#ff9ecfbf</color>-->
     <color name="text_tab_selected">#FFFCEB</color>
     <color name="text_tab_unselected">#DDD0FF</color>
-    <color name="light_gray">#d3d3d3</color>
+    <color name="light_gray">#808080</color>
 </resources>

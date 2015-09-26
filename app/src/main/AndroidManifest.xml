@@ -12,6 +12,7 @@
         android:theme="@style/CustomActionBar">
         <activity
             android:name=".UI.MainListActivity"
+            android:fullBackupContent="true"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>

@@ -12,7 +12,7 @@ import org.json.JSONObject;
  */
 public class MattersController {
 
-    protected Context mContext;
+    private final Context mContext;
 
     public MattersController(Context context) {
         mContext = context;
@@ -22,7 +22,7 @@ public class MattersController {
         JSONObject matters;
 
         NetworkHandler networkHandler = new NetworkHandler(mContext);
-        matters = networkHandler.getJason(ApiConstants.CLIO_URL);
+        matters = networkHandler.getJason(ApiConstants.CLIO_URL, ApiConstants.CLIO_AUTH);
 
         return matters;
     }

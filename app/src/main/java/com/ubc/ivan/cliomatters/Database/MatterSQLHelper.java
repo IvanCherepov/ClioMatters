@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 /**
  * Created by ivan on 22/09/15.
  */
-public class MatterSQLHelper extends SQLiteOpenHelper {
+class MatterSQLHelper extends SQLiteOpenHelper {
 
     public static final String TABLE_MATTERS = "MATTERS";
     //Matters Table functionality

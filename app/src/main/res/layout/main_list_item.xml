@@ -18,6 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:contentDescription="@string/description_more_icon"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:src="@drawable/ic_action_more" />
@@ -30,7 +31,6 @@
             android:layout_toLeftOf="@+id/moreIcon"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingTop="@dimen/message_vertical_padding"
-            android:text="Test Name"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textSize="16sp" />
 
@@ -43,7 +43,6 @@
             android:layout_toLeftOf="@+id/moreIcon"
             android:paddingBottom="@dimen/message_vertical_padding"
             android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:text="TextView"
             android:textColor="@color/light_gray"
             android:textSize="14sp" />
 

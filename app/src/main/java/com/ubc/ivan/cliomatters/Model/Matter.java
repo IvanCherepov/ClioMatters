@@ -18,7 +18,7 @@ public class Matter implements Parcelable {
             return new Matter[size];
         }
     };
-    int id;
+    private int id;
     private Client client;
     private String displayName, clientName, description, openDate, status, practiceArea;
     private Boolean billable;
@@ -38,7 +38,7 @@ public class Matter implements Parcelable {
         this.practiceArea = practiceArea;
     }
 
-    protected Matter(Parcel in) {
+    public Matter(Parcel in) {
         id = in.readInt();
         displayName = in.readString();
         clientName = in.readString();

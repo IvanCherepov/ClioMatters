@@ -17,9 +17,9 @@ import java.util.Locale;
  * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
  * one of the sections/tabs/pages.
  */
-public class SectionsPagerAdapter extends FragmentPagerAdapter {
+class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-    protected Context mContext;
+    private final Context mContext;
 
     public SectionsPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
@@ -66,8 +66,8 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
                 return R.drawable.ic_tab_info;
             case 1:
                 return R.drawable.ic_tab_more;
-
+            default:
+                return R.drawable.ic_tab_info;
         }
-        return R.drawable.ic_tab_info;
     }
 }
